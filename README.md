@@ -85,16 +85,3 @@ http://localhost:3000
 ## RSVP and wishes
 
 The RSVP and wishes features are demo-only and save to the guest device using `localStorage`. For production, connect them to Supabase, Firebase, Google Sheets, or your own backend.
-
-
-## V6 refinements
-
-- Adjusted the Aiman/Alyana title artwork so the lower “lyana” sits closer to the big A without stacking on top of it.
-- Replaced the invitation copy with the requested wording.
-- Wired the Buka Kad action to start the included background audio.
-- Updated body font hooks from Coco Gothic UltraLight to Coco Gothic Light.
-- Added Coco Gothic Heavy artwork for the parents and couple full-name lines.
-- Replaced the pink dot between full names with a filled heart icon.
-- Kept all main content center-aligned.
-
-Font files are not included in the zip. The key title/name/hashtag typography is rendered as PNG artwork, and optional `@font-face` paths are prepared under `assets/fonts/`.
