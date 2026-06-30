@@ -30,7 +30,7 @@ const INVITATION = {
   endDate: "2026-08-08T15:00:00+08:00",
   venue: "Seri Mentari Glasshall",
   address: "Seri Mentari Glasshall, Jalan Bukit Katil - Duyong, 75460 Melaka, Malaysia",
-  googleMapsUrl: "https://www.google.com/maps/place/Seri+Mentari+Glasshall/@2.5918178,101.6288338,10z/data=!4m6!3m5!1s0x31d1ef47c99e8fef:0x1741a1c481551cbf!8m2!3d2.1970694!4d102.2903182!16s%2Fg%2F11yby12llx?entry=ttu&g_ep=EgoyMDI2MDYyNC4wIKXMDSoASAFQAw%3D%3D",
+  googleMapsUrl: "https://www.google.com/maps?q=2.1970694,102.2903182",
   wazeUrl: "https://waze.com/ul/hw22srxvwk",
   calendarDescription: "Walimatul Urus Muhammad Aiman Hakim Bin Azahari dan Nurul Alyana Binti Che Aman. 11 Pagi - 3 Petang. #AiLoveYa",
   defaultWishes: [
