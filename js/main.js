@@ -1,3 +1,28 @@
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-app.js";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  onSnapshot,
+  query,
+  orderBy,
+  limit,
+  serverTimestamp
+} from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBifW3zbncREMhxjqw9g0ITWnxD396Kkss",
+  authDomain: "aiman-yana-wed.firebaseapp.com",
+  projectId: "aiman-yana-wed",
+  storageBucket: "aiman-yana-wed.firebasestorage.app",
+  messagingSenderId: "171399879009",
+  appId: "1:171399879009:web:fbf380999b1a22c2bbcd20",
+  measurementId: "G-TEN91Q9VDR"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getFirestore(app);
+
 const INVITATION = {
   couple: "Aiman Alyana",
   eventTitle: "Walimatul Urus Aiman & Alyana",
@@ -192,24 +217,174 @@ function setupLocationLinks() {
 setupCalendarLinks();
 setupLocationLinks();
 
-function getStoredWishes() {
-  try {
-    return JSON.parse(localStorage.getItem("aiman-alyana-wishes")) || INVITATION.defaultWishes;
-  } catch {
-    return INVITATION.defaultWishes;
+function initCarousel(root) {
+  const track = $("[data-carousel-track]", root);
+  const slides = $$(".carousel-slide", root);
+  const prevButton = $("[data-carousel-prev]", root);
+  const nextButton = $("[data-carousel-next]", root);
+  const dots = $("[data-carousel-dots]", root);
+
+  if (!track || !prevButton || !nextButton || !dots || slides.length === 0) {
+    return;
   }
+
+  let currentIndex = 0;
+  let autoplayId = null;
+
+  function stopAutoplay() {
+    if (autoplayId) {
+      window.clearInterval(autoplayId);
+      autoplayId = null;
+    }
+  }
+
+  function setIndex(nextIndex) {
+    currentIndex = ((nextIndex % slides.length) + slides.length) % slides.length;
+    track.style.transform = `translateX(-${currentIndex * 100}%)`;
+
+    slides.forEach((slide, slideIndex) => {
+      slide.classList.toggle("is-active", slideIndex === currentIndex);
+    });
+
+    Array.from(dots.children).forEach((dot, slideIndex) => {
+      const active = slideIndex === currentIndex;
+      dot.classList.toggle("is-active", active);
+      dot.setAttribute("aria-current", active ? "true" : "false");
+    });
+
+    const hasMultipleSlides = slides.length > 1;
+    prevButton.disabled = !hasMultipleSlides;
+    nextButton.disabled = !hasMultipleSlides;
+  }
+
+  function moveTo(nextIndex) {
+    setIndex(nextIndex);
+    restartAutoplay();
+  }
+
+  function restartAutoplay() {
+    stopAutoplay();
+
+    if (slides.length < 2) {
+      return;
+    }
+
+    autoplayId = window.setInterval(() => {
+      setIndex(currentIndex + 1);
+    }, 4200);
+  }
+
+  dots.innerHTML = "";
+
+  slides.forEach((slide, slideIndex) => {
+    const dot = document.createElement("button");
+    dot.type = "button";
+    dot.className = "carousel-dot";
+    dot.setAttribute("aria-label", `Pergi ke slaid ${slideIndex + 1}`);
+    dot.addEventListener("click", () => moveTo(slideIndex));
+    dots.append(dot);
+    slide.classList.toggle("is-active", slideIndex === 0);
+  });
+
+  prevButton.addEventListener("click", () => moveTo(currentIndex - 1));
+  nextButton.addEventListener("click", () => moveTo(currentIndex + 1));
+
+  root.addEventListener("pointerenter", stopAutoplay);
+  root.addEventListener("pointerleave", restartAutoplay);
+  root.addEventListener("focusin", stopAutoplay);
+  root.addEventListener("focusout", (event) => {
+    if (!root.contains(event.relatedTarget)) {
+      restartAutoplay();
+    }
+  });
+
+  setIndex(0);
+  restartAutoplay();
 }
 
-function setStoredWishes(wishes) {
-  localStorage.setItem("aiman-alyana-wishes", JSON.stringify(wishes));
+const galleryCarousel = $("[data-carousel]");
+if (galleryCarousel) {
+  initCarousel(galleryCarousel);
 }
 
-function renderWishes() {
+// function getStoredWishes() {
+//   try {
+//     return JSON.parse(localStorage.getItem("aiman-alyana-wishes")) || INVITATION.defaultWishes;
+//   } catch {
+//     return INVITATION.defaultWishes;
+//   }
+// }
+
+// function setStoredWishes(wishes) {
+//   localStorage.setItem("aiman-alyana-wishes", JSON.stringify(wishes));
+// }
+
+// function renderWishes() {
+//   const wishList = $("#wishList");
+//   const wishes = getStoredWishes();
+//   wishList.innerHTML = "";
+
+//   wishes.slice().reverse().forEach((wish) => {
+//     const item = document.createElement("div");
+//     item.className = "wish-card";
+
+//     const name = document.createElement("strong");
+//     name.textContent = wish.name;
+
+//     const message = document.createElement("p");
+//     message.textContent = wish.message;
+
+//     item.append(name, message);
+//     wishList.append(item);
+//   });
+// }
+
+// $("#wishForm").addEventListener("submit", (event) => {
+//   event.preventDefault();
+//   const form = new FormData(event.currentTarget);
+//   const name = String(form.get("name") || "").trim();
+//   const message = String(form.get("message") || "").trim();
+//   if (!name || !message) return;
+
+//   const wishes = getStoredWishes();
+//   wishes.push({ name, message });
+//   setStoredWishes(wishes);
+//   event.currentTarget.reset();
+//   renderWishes();
+//   closePanels();
+// });
+
+// renderWishes();
+
+// $("#rsvpForm").addEventListener("submit", (event) => {
+//   event.preventDefault();
+//   const form = new FormData(event.currentTarget);
+//   const rsvp = {
+//     name: String(form.get("name") || "").trim(),
+//     attendance: String(form.get("attendance") || ""),
+//     guests: Number(form.get("guests") || 0),
+//     submittedAt: new Date().toISOString()
+//   };
+
+//   let existing = [];
+//   try {
+//     existing = JSON.parse(localStorage.getItem("aiman-alyana-rsvp") || "[]");
+//   } catch {
+//     existing = [];
+//   }
+
+//   existing.push(rsvp);
+//   localStorage.setItem("aiman-alyana-rsvp", JSON.stringify(existing));
+
+//   $("#rsvpStatus").textContent = `Terima kasih, ${rsvp.name}. RSVP anda telah disimpan pada peranti ini.`;
+//   event.currentTarget.reset();
+// });
+
+function renderWishes(wishes) {
   const wishList = $("#wishList");
-  const wishes = getStoredWishes();
   wishList.innerHTML = "";
 
-  wishes.slice().reverse().forEach((wish) => {
+  wishes.forEach((wish) => {
     const item = document.createElement("div");
     item.className = "wish-card";
 
@@ -224,45 +399,95 @@ function renderWishes() {
   });
 }
 
-$("#wishForm").addEventListener("submit", (event) => {
+const wishesQuery = query(
+  collection(db, "wishes"),
+  orderBy("createdAt", "desc"),
+  limit(50)
+);
+
+onSnapshot(
+  wishesQuery,
+  (snapshot) => {
+    if (snapshot.empty) {
+      renderWishes(INVITATION.defaultWishes.slice().reverse());
+      return;
+    }
+
+    const wishes = snapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data()
+    }));
+
+    renderWishes(wishes);
+  },
+  (error) => {
+    console.error("Error loading wishes:", error);
+    renderWishes(INVITATION.defaultWishes.slice().reverse());
+  }
+);
+
+$("#wishForm").addEventListener("submit", async (event) => {
   event.preventDefault();
-  const form = new FormData(event.currentTarget);
+
+  const formElement = event.currentTarget;
+  const form = new FormData(formElement);
+
   const name = String(form.get("name") || "").trim();
   const message = String(form.get("message") || "").trim();
+
   if (!name || !message) return;
 
-  const wishes = getStoredWishes();
-  wishes.push({ name, message });
-  setStoredWishes(wishes);
-  event.currentTarget.reset();
-  renderWishes();
-  closePanels();
+  const submitButton = formElement.querySelector("button[type='submit']");
+  submitButton.disabled = true;
+
+  try {
+    await addDoc(collection(db, "wishes"), {
+      name,
+      message,
+      createdAt: serverTimestamp()
+    });
+
+    formElement.reset();
+    closePanels();
+  } catch (error) {
+    console.error("Error sending wish:", error);
+    alert("Maaf, ucapan tidak dapat dihantar. Sila cuba lagi.");
+  } finally {
+    submitButton.disabled = false;
+  }
 });
 
-renderWishes();
-
-$("#rsvpForm").addEventListener("submit", (event) => {
+$("#rsvpForm").addEventListener("submit", async (event) => {
   event.preventDefault();
-  const form = new FormData(event.currentTarget);
+
+  const formElement = event.currentTarget;
+  const form = new FormData(formElement);
+
   const rsvp = {
     name: String(form.get("name") || "").trim(),
     attendance: String(form.get("attendance") || ""),
-    guests: Number(form.get("guests") || 0),
-    submittedAt: new Date().toISOString()
+    guests: Number.parseInt(String(form.get("guests") || "0"), 10),
+    submittedAt: serverTimestamp()
   };
 
-  let existing = [];
+  if (!rsvp.name || !rsvp.attendance) return;
+
+  const submitButton = formElement.querySelector("button[type='submit']");
+  submitButton.disabled = true;
+
+  $("#rsvpStatus").textContent = "Menghantar RSVP...";
+
   try {
-    existing = JSON.parse(localStorage.getItem("aiman-alyana-rsvp") || "[]");
-  } catch {
-    existing = [];
+    await addDoc(collection(db, "rsvps"), rsvp);
+
+    $("#rsvpStatus").textContent = `Terima kasih, ${rsvp.name}. RSVP anda telah dihantar.`;
+    formElement.reset();
+  } catch (error) {
+    console.error("Error sending RSVP:", error);
+    $("#rsvpStatus").textContent = "Maaf, RSVP tidak dapat dihantar. Sila cuba lagi.";
+  } finally {
+    submitButton.disabled = false;
   }
-
-  existing.push(rsvp);
-  localStorage.setItem("aiman-alyana-rsvp", JSON.stringify(existing));
-
-  $("#rsvpStatus").textContent = `Terima kasih, ${rsvp.name}. RSVP anda telah disimpan pada peranti ini.`;
-  event.currentTarget.reset();
 });
 
 function createSparkle() {

@@ -1,6 +1,6 @@
 @font-face {
   font-family: "Jimmy Script";
-  src: local("Jimmy Script"), local("JimmyScript-Rg"), url("../assets/fonts/JimmyScript-Rg.otf") format("opentype");
+  src: local("Jimmy Script"), local("JimmyScript-Rg");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -8,7 +8,7 @@
 
 @font-face {
   font-family: "Coco Gothic Light Trial";
-  src: local("Coco Gothic Light Trial"), local("CocoGothic-Light"), url("../assets/fonts/CocoGothic-Light_trial.ttf") format("truetype");
+  src: local("Coco Gothic Light Trial"), local("CocoGothic-Light");
   font-weight: 300;
   font-style: normal;
   font-display: swap;
@@ -16,7 +16,7 @@
 
 @font-face {
   font-family: "Coco Gothic Heavy Trial";
-  src: local("Coco Gothic Heavy Trial"), local("CocoGothic-Heavy"), url("../assets/fonts/CocoGothic-Heavy_trial.ttf") format("truetype");
+  src: local("Coco Gothic Heavy Trial"), local("CocoGothic-Heavy");
   font-weight: 800;
   font-style: normal;
   font-display: swap;
@@ -24,7 +24,7 @@
 
 @font-face {
   font-family: "Bimbo Trial";
-  src: local("Bimbo Trial"), url("../assets/fonts/Bimbo Trial.ttf") format("truetype");
+  src: local("Bimbo Trial"), local("BimboTrial");
   font-weight: 400;
   font-style: normal;
   font-display: swap;
@@ -667,6 +667,123 @@ button {
   font-weight: 800;
   letter-spacing: 0.1em;
   text-transform: uppercase;
+}
+
+.gallery {
+  padding-bottom: 22px;
+}
+
+.carousel {
+  display: grid;
+  gap: 14px;
+}
+
+.carousel-viewport {
+  overflow: hidden;
+  border-radius: 26px;
+  background: rgba(255, 255, 255, 0.48);
+  border: 1px solid rgba(255, 255, 255, 0.7);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.55),
+    0 14px 30px rgba(196, 65, 124, 0.08);
+}
+
+.carousel-track {
+  display: flex;
+  width: 100%;
+  transform: translateX(0);
+  transition: transform 0.45s ease;
+  will-change: transform;
+}
+
+.carousel-slide {
+  flex: 0 0 100%;
+  margin: 0;
+  aspect-ratio: 16 / 9;
+  background: rgba(255, 255, 255, 0.42);
+}
+
+.carousel-slide img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
+.carousel-controls {
+  display: grid;
+  grid-template-columns: 44px minmax(0, 1fr) 44px;
+  align-items: center;
+  gap: 10px;
+}
+
+.carousel-button {
+  display: grid;
+  place-items: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  color: var(--rose-deep);
+  background: rgba(255, 255, 255, 0.76);
+  box-shadow: 0 10px 24px rgba(188, 78, 126, 0.14);
+  transition: transform 0.2s ease, background 0.2s ease, opacity 0.2s ease;
+}
+
+.carousel-button:hover {
+  transform: translateY(-1px);
+  background: rgba(255, 255, 255, 0.94);
+}
+
+.carousel-button:disabled {
+  opacity: 0.4;
+  cursor: default;
+  transform: none;
+}
+
+.carousel-button:focus-visible {
+  outline: 3px solid rgba(223, 79, 145, 0.35);
+  outline-offset: 3px;
+}
+
+.carousel-icon {
+  width: 20px;
+  height: 20px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.carousel-dots {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 44px;
+}
+
+.carousel-dot {
+  width: 10px;
+  height: 10px;
+  padding: 0;
+  border: 0;
+  border-radius: 999px;
+  background: rgba(223, 79, 145, 0.22);
+  transition: transform 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+}
+
+.carousel-dot.is-active {
+  background: var(--rose);
+  transform: scale(1.35);
+  box-shadow: 0 0 0 4px rgba(223, 79, 145, 0.12);
+}
+
+.carousel-dot:focus-visible {
+  outline: 3px solid rgba(223, 79, 145, 0.35);
+  outline-offset: 3px;
 }
 
 .programme-row {
@@ -1476,6 +1593,10 @@ body {
   text-align: center;
 }
 
+.carousel {
+  gap: 12px;
+}
+
 .programme-row {
   grid-template-columns: 1fr;
   gap: 8px;
@@ -1752,5 +1873,14 @@ body,
 
   .cover-hashtag {
     margin-top: 10px;
+  }
+
+  .carousel-controls {
+    grid-template-columns: 40px minmax(0, 1fr) 40px;
+  }
+
+  .carousel-button {
+    width: 40px;
+    height: 40px;
   }
 }

@@ -22,27 +22,14 @@ Pastel Lover-inspired digital invitation for:
 
 ## Fonts
 
-The CSS is prepared for these requested fonts:
+The CSS is prepared to use these requested fonts if they are installed on your system:
 
 - Title: Jimmy Script
-- Body: Coco Gothic UltraLight Trial
+- Body: Coco Gothic Light Trial
+- Heavy text: Coco Gothic Heavy Trial
 - Hashtag: Bimbo Trial
 
-Font files are not packaged in this project. Place your licensed/trial font files in:
-
-```txt
-assets/fonts/
-```
-
-Expected local filenames:
-
-```txt
-JimmyScript-Rg.otf
-CocoGothic-UltraLight_trial.ttf
-Bimbo Trial.ttf
-```
-
-The `@font-face` rules are already prepared in `css/style.css`. Fallback web fonts are included so the card still displays before you add the local font files.
+Font files are not packaged in this project, and the PNG title/hashtag artwork means the card still renders cleanly without them. If you want the exact trial fonts locally, install them on your system or add your own `@font-face` files.
 
 ## Music
 
@@ -70,7 +57,7 @@ index.html
 
 ## Preview locally
 
-Open `index.html` in a browser, or run a local server:
+Do not open `index.html` directly with `file://` if you want to avoid browser security warnings and keep the Firebase-backed features working normally. Run a local server instead:
 
 ```bash
 python3 -m http.server 3000
