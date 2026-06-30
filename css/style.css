@@ -673,6 +673,101 @@ button {
   padding-bottom: 22px;
 }
 
+.couple {
+  padding-bottom: 24px;
+}
+
+.lover-stack {
+  position: relative;
+  width: min(100%, 344px);
+  height: clamp(300px, 80vw, 392px);
+  margin: 0 auto;
+}
+
+.lover-frame {
+  position: absolute;
+  margin: 0;
+  padding: 12px 12px 20px;
+  border-radius: 28px;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.95), rgba(255, 246, 251, 0.92));
+  border: 1px solid rgba(255, 255, 255, 0.88);
+  box-shadow:
+    0 18px 42px rgba(181, 81, 127, 0.18),
+    inset 0 1px 0 rgba(255, 255, 255, 0.75);
+}
+
+.lover-frame::before {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%) rotate(-1deg);
+  padding: 4px 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.9);
+  color: var(--rose-deep);
+  font-size: 0.58rem;
+  font-weight: 800;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  z-index: 2;
+}
+
+.lover-frame::after {
+  content: "";
+  position: absolute;
+  inset: 8px;
+  border-radius: 20px;
+  border: 1px solid rgba(223, 79, 145, 0.18);
+  pointer-events: none;
+  z-index: 1;
+}
+
+.lover-frame img {
+  position: relative;
+  z-index: 0;
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+  border-radius: 18px;
+  background: #fff;
+}
+
+.lover-frame-groom {
+  top: 10px;
+  left: 8px;
+  width: min(54%, 180px);
+  aspect-ratio: 4 / 5;
+  transform: rotate(-10deg);
+}
+
+.lover-frame-bride {
+  right: 6px;
+  bottom: 2px;
+  width: min(57%, 192px);
+  aspect-ratio: 4 / 5;
+  transform: rotate(9deg);
+  z-index: 2;
+}
+
+.lover-frame-groom img {
+  object-position: center 22%;
+}
+
+.lover-frame-bride img {
+  object-position: center 20%;
+}
+
+.lover-frame-groom::before {
+  content: "Aiman";
+}
+
+.lover-frame-bride::before {
+  content: "Alyana";
+}
+
 .carousel {
   display: grid;
   gap: 14px;
@@ -701,6 +796,7 @@ button {
   margin: 0;
   aspect-ratio: 16 / 9;
   background: rgba(255, 255, 255, 0.42);
+  overflow: hidden;
 }
 
 .carousel-slide img {
@@ -1860,6 +1956,25 @@ body,
   .invite-copy-refined {
     font-size: 0.78rem;
   }
+
+  .lover-stack {
+    width: min(100%, 308px);
+    height: clamp(274px, 92vw, 350px);
+  }
+
+  .lover-frame {
+    padding: 10px 10px 18px;
+  }
+
+  .lover-frame-groom {
+    left: 2px;
+    width: min(54%, 170px);
+  }
+
+  .lover-frame-bride {
+    right: 0;
+    width: min(57%, 180px);
+  }
 }
 
 @media (max-height: 700px) {
@@ -1873,6 +1988,10 @@ body,
 
   .cover-hashtag {
     margin-top: 10px;
+  }
+
+  .lover-stack {
+    height: clamp(260px, 68vh, 360px);
   }
 
   .carousel-controls {
