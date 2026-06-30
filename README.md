@@ -1,4 +1,4 @@
-# Aiman x Alyana - Lover Inspired Digital Card V5
+# Aiman x Alyana - Lover Inspired Digital Card
 
 Pastel Lover-inspired digital invitation for:
 
