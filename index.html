@@ -168,6 +168,12 @@
         </div>
       </section>
 
+      <section class="section-card rsvp-summary reveal" id="rsvpSummary">
+        <h2>Kehadiran</h2>
+        <p class="rsvp-summary-count" aria-live="polite"><strong id="rsvpGuestCount">0</strong> Orang</p>
+        <button class="primary-button rsvp-summary-button" data-panel="rsvpPanel" type="button">Sahkan Kehadiran</button>
+      </section>
+
       <section class="section-card wishes reveal" id="wishesSection">
         <h2>Ucapan Tetamu</h2>
         <div id="wishList" class="wish-list" aria-live="polite"></div>
@@ -221,10 +227,17 @@
       <button class="panel-close" type="button" aria-label="Close">&times;</button>
       <h2>Lokasi</h2>
       <p>SERI MENTARI GLASSHALL<br>Jalan Bukit Katil - Duyong, 75460, Melaka</p>
-      <div class="qr-wrap">
-        <img src="./assets/qr-location.png" alt="QR code lokasi dari kad jemputan" />
-        <span>Scan QR atau buka peta terus dari telefon anda.</span>
+      <div class="qr-grid">
+        <figure class="qr-card">
+          <img src="./assets/qr-google-maps.png" alt="QR code Google Maps" loading="lazy" decoding="async" />
+          <figcaption>Google Maps</figcaption>
+        </figure>
+        <figure class="qr-card">
+          <img src="./assets/qr-waze.png" alt="QR code Waze" loading="lazy" decoding="async" />
+          <figcaption>Waze</figcaption>
+        </figure>
       </div>
+      <p class="qr-note">Scan QR yang sesuai untuk terus buka navigasi.</p>
       <div class="button-row">
         <a id="googleMaps" class="primary-button" target="_blank" rel="noopener">Google Maps</a>
         <a id="waze" class="secondary-button" target="_blank" rel="noopener">Waze</a>

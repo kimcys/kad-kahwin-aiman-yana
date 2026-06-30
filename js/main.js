@@ -30,6 +30,8 @@ const INVITATION = {
   endDate: "2026-08-08T15:00:00+08:00",
   venue: "Seri Mentari Glasshall",
   address: "Seri Mentari Glasshall, Jalan Bukit Katil - Duyong, 75460 Melaka, Malaysia",
+  googleMapsUrl: "https://www.google.com/maps/place/Seri+Mentari+Glasshall/@2.5918178,101.6288338,10z/data=!4m6!3m5!1s0x31d1ef47c99e8fef:0x1741a1c481551cbf!8m2!3d2.1970694!4d102.2903182!16s%2Fg%2F11yby12llx?entry=ttu&g_ep=EgoyMDI2MDYyNC4wIKXMDSoASAFQAw%3D%3D",
+  wazeUrl: "https://waze.com/ul/hw22srxvwk",
   calendarDescription: "Walimatul Urus Muhammad Aiman Hakim Bin Azahari dan Nurul Alyana Binti Che Aman. 11 Pagi - 3 Petang. #AiLoveYa",
   defaultWishes: [
     { name: "Tetamu", message: "Tahniah Aiman dan Alyana. Semoga berbahagia hingga ke Jannah." },
@@ -46,6 +48,7 @@ const card = $("#card");
 const panelOverlay = $("#panelOverlay");
 const panels = $$(".bottom-panel");
 const loverAudio = $("#loverAudio");
+const rsvpGuestCount = $("#rsvpGuestCount");
 let musicPlaying = false;
 let sparkleInterval = null;
 let unlocked = false;
@@ -209,13 +212,27 @@ function setupCalendarLinks() {
 }
 
 function setupLocationLinks() {
-  const encodedAddress = encodeURIComponent(INVITATION.address);
-  $("#googleMaps").href = `https://www.google.com/maps/search/?api=1&query=${encodedAddress}`;
-  $("#waze").href = `https://waze.com/ul?q=${encodedAddress}&navigate=yes`;
+  $("#googleMaps").href = INVITATION.googleMapsUrl;
+  $("#waze").href = INVITATION.wazeUrl;
 }
 
 setupCalendarLinks();
 setupLocationLinks();
+
+function getRsvpGuestCount(rsvp) {
+  if (String(rsvp.attendance || "").trim().toLowerCase() !== "hadir") {
+    return 0;
+  }
+
+  const guests = Number.parseInt(String(rsvp.guests ?? "1"), 10);
+  return Number.isFinite(guests) && guests >= 0 ? guests : 1;
+}
+
+function setRsvpGuestCount(totalGuests) {
+  if (rsvpGuestCount) {
+    rsvpGuestCount.textContent = String(totalGuests);
+  }
+}
 
 function initCarousel(root) {
   const track = $("[data-carousel-track]", root);
@@ -405,6 +422,8 @@ const wishesQuery = query(
   limit(50)
 );
 
+const rsvpsCollection = collection(db, "rsvps");
+
 onSnapshot(
   wishesQuery,
   (snapshot) => {
@@ -423,6 +442,21 @@ onSnapshot(
   (error) => {
     console.error("Error loading wishes:", error);
     renderWishes(INVITATION.defaultWishes.slice().reverse());
+  }
+);
+
+onSnapshot(
+  rsvpsCollection,
+  (snapshot) => {
+    const totalGuests = snapshot.docs.reduce((sum, doc) => {
+      return sum + getRsvpGuestCount(doc.data());
+    }, 0);
+
+    setRsvpGuestCount(totalGuests);
+  },
+  (error) => {
+    console.error("Error loading RSVPs:", error);
+    setRsvpGuestCount(0);
   }
 );
 
@@ -478,7 +512,7 @@ $("#rsvpForm").addEventListener("submit", async (event) => {
   $("#rsvpStatus").textContent = "Menghantar RSVP...";
 
   try {
-    await addDoc(collection(db, "rsvps"), rsvp);
+    await addDoc(rsvpsCollection, rsvp);
 
     $("#rsvpStatus").textContent = `Terima kasih, ${rsvp.name}. RSVP anda telah dihantar.`;
     formElement.reset();
