@@ -910,6 +910,89 @@ button {
   line-height: 1.55;
 }
 
+.dresscode {
+  text-align: center;
+}
+
+.dresscode-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  margin: 2px 0 16px;
+}
+
+.dresscode-card {
+  --accent: var(--rose);
+  margin: 0;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+  padding: 16px 12px 14px;
+  border-radius: 24px;
+  color: var(--accent);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.72), rgba(255, 255, 255, 0.56));
+  border: 1px solid rgba(223, 79, 145, 0.18);
+  box-shadow: 0 12px 26px rgba(196, 65, 124, 0.08);
+}
+
+.dresscode-card-blue {
+  --accent: #4f89c9;
+  background: linear-gradient(180deg, rgba(191, 232, 245, 0.78), rgba(255, 255, 255, 0.68));
+  border-color: rgba(79, 137, 201, 0.2);
+}
+
+.dresscode-card-pink {
+  --accent: #df6093;
+  background: linear-gradient(180deg, rgba(255, 216, 233, 0.78), rgba(255, 255, 255, 0.68));
+  border-color: rgba(223, 96, 147, 0.2);
+}
+
+.dresscode-icon {
+  display: block;
+  width: 64px;
+  height: 64px;
+  color: var(--accent);
+}
+
+.dresscode-icon path {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.dresscode-card figcaption {
+  display: grid;
+  gap: 3px;
+  text-align: center;
+}
+
+.dresscode-title {
+  color: var(--accent);
+  font-size: 0.8rem;
+  font-weight: 800;
+  letter-spacing: 0.1em;
+  line-height: 1.2;
+  text-transform: uppercase;
+}
+
+.dresscode-subtitle {
+  color: #675d5d;
+  font-size: 0.72rem;
+  font-weight: 300;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.dresscode-note {
+  margin: 0;
+  color: #675d5d;
+  font-size: 0.84rem;
+  line-height: 1.62;
+}
+
 .rsvp-summary {
   display: grid;
   justify-items: center;
@@ -1454,6 +1537,19 @@ button {
   .programme-row {
     grid-template-columns: 1fr;
     gap: 6px;
+  }
+
+  .dresscode-grid {
+    gap: 8px;
+  }
+
+  .dresscode-card {
+    padding: 14px 10px 12px;
+  }
+
+  .dresscode-icon {
+    width: 58px;
+    height: 58px;
   }
 
   .button-row {
