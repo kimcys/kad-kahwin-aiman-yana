@@ -2233,3 +2233,17 @@ body,
     height: 40px;
   }
 }
+
+.cover-hashtag {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  text-align: center;
+}
+
+.cover-hashtag img {
+  display: block;
+  margin-left: auto;
+  margin-right: auto;
+}
