@@ -7,6 +7,9 @@ import {
   query,
   orderBy,
   limit,
+  startAfter,
+  getDocs,
+  getCountFromServer,
   serverTimestamp
 } from "https://www.gstatic.com/firebasejs/12.15.0/firebase-firestore.js";
 
@@ -39,6 +42,10 @@ const INVITATION = {
   ]
 };
 
+const WISHES_PAGE_SIZE = 3;
+const wishesCollection = collection(db, "wishes");
+const rsvpsCollection = collection(db, "rsvps");
+
 const $ = (selector, parent = document) => parent.querySelector(selector);
 const $$ = (selector, parent = document) => Array.from(parent.querySelectorAll(selector));
 
@@ -49,9 +56,20 @@ const panelOverlay = $("#panelOverlay");
 const panels = $$(".bottom-panel");
 const loverAudio = $("#loverAudio");
 const rsvpGuestCount = $("#rsvpGuestCount");
+const wishList = $("#wishList");
+const wishPrevPage = $("#wishPrevPage");
+const wishNextPage = $("#wishNextPage");
+const wishPageInfo = $("#wishPageInfo");
 let musicPlaying = false;
 let sparkleInterval = null;
 let unlocked = false;
+let wishCurrentPage = 1;
+let wishTotalPages = 1;
+let wishCountKnown = false;
+let wishHasMorePages = false;
+let wishLoading = false;
+let wishLoadToken = 0;
+let wishPageEnds = new Map();
 
 const params = new URLSearchParams(window.location.search);
 const guest = params.get("to") || params.get("guest") || "";
@@ -220,18 +238,20 @@ setupCalendarLinks();
 setupLocationLinks();
 
 function getRsvpGuestCount(rsvp) {
-  if (String(rsvp.attendance || "").trim().toLowerCase() !== "hadir") {
-    return 0;
-  }
-
-  const guests = Number.parseInt(String(rsvp.guests ?? "1"), 10);
-  return Number.isFinite(guests) && guests >= 0 ? guests : 1;
+  const guests = Number.parseInt(String(rsvp.guests ?? "0"), 10);
+  return Number.isFinite(guests) && guests >= 0 ? guests : 0;
 }
 
 function setRsvpGuestCount(totalGuests) {
   if (rsvpGuestCount) {
     rsvpGuestCount.textContent = String(totalGuests);
   }
+}
+
+function sumRsvpGuests(snapshot) {
+  return snapshot.docs.reduce((sum, doc) => {
+    return sum + getRsvpGuestCount(doc.data());
+  }, 0);
 }
 
 function initCarousel(root) {
@@ -398,12 +418,16 @@ if (galleryCarousel) {
 // });
 
 function renderWishes(wishes) {
-  const wishList = $("#wishList");
+  if (!wishList) {
+    return;
+  }
+
   wishList.innerHTML = "";
 
-  wishes.forEach((wish) => {
+  wishes.forEach((wish, wishIndex) => {
     const item = document.createElement("div");
     item.className = "wish-card";
+    item.style.setProperty("--wish-delay", `${wishIndex * 55}ms`);
 
     const name = document.createElement("strong");
     name.textContent = wish.name;
@@ -414,49 +438,166 @@ function renderWishes(wishes) {
     item.append(name, message);
     wishList.append(item);
   });
+
+  wishList.classList.remove("is-changing");
 }
 
-const wishesQuery = query(
-  collection(db, "wishes"),
-  orderBy("createdAt", "desc"),
-  limit(50)
-);
+function updateWishPaginationUI() {
+  if (!wishPrevPage || !wishNextPage || !wishPageInfo) {
+    return;
+  }
 
-const rsvpsCollection = collection(db, "rsvps");
+  if (wishLoading && wishCountKnown) {
+    wishPageInfo.textContent = `Halaman ${wishCurrentPage}/${wishTotalPages}`;
+  } else if (wishLoading) {
+    wishPageInfo.textContent = `Halaman ${wishCurrentPage}`;
+  } else if (wishCountKnown) {
+    wishPageInfo.textContent = `Halaman ${wishCurrentPage}/${wishTotalPages}`;
+  } else {
+    wishPageInfo.textContent = `Halaman ${wishCurrentPage}`;
+  }
 
-onSnapshot(
-  wishesQuery,
-  (snapshot) => {
-    if (snapshot.empty) {
-      renderWishes(INVITATION.defaultWishes.slice().reverse());
+  wishPrevPage.disabled = wishLoading || wishCurrentPage <= 1;
+  wishNextPage.disabled = wishLoading || (wishCountKnown ? wishCurrentPage >= wishTotalPages : !wishHasMorePages);
+}
+
+async function loadWishPage(pageNumber = 1, { resetHistory = false } = {}) {
+  const normalizedPage = Math.max(1, pageNumber);
+
+  if (resetHistory) {
+    wishPageEnds.clear();
+  }
+
+  const previousCursor = normalizedPage > 1 ? wishPageEnds.get(normalizedPage - 1) : null;
+  if (normalizedPage > 1 && !previousCursor) {
+    return loadWishPage(1, { resetHistory: true });
+  }
+
+  const wishQuery = previousCursor
+    ? query(
+        wishesCollection,
+        orderBy("createdAt", "desc"),
+        startAfter(previousCursor),
+        limit(WISHES_PAGE_SIZE)
+      )
+    : query(
+        wishesCollection,
+        orderBy("createdAt", "desc"),
+        limit(WISHES_PAGE_SIZE)
+      );
+
+  const loadToken = ++wishLoadToken;
+  wishLoading = true;
+  wishList?.classList.add("is-changing");
+  updateWishPaginationUI();
+
+  try {
+    const [countResult, pageResult] = await Promise.allSettled([
+      getCountFromServer(wishesCollection),
+      getDocs(wishQuery)
+    ]);
+
+    if (loadToken !== wishLoadToken) {
       return;
     }
 
+    if (countResult.status === "fulfilled") {
+      wishCountKnown = true;
+      const totalCount = Number(countResult.value.data().count) || 0;
+      wishTotalPages = Math.max(1, Math.ceil(totalCount / WISHES_PAGE_SIZE));
+    } else {
+      wishCountKnown = false;
+      console.error("Error counting wishes:", countResult.reason);
+    }
+
+    if (pageResult.status !== "fulfilled") {
+      throw pageResult.reason;
+    }
+
+    const snapshot = pageResult.value;
     const wishes = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data()
     }));
 
+    if (wishes.length === 0 && normalizedPage === 1) {
+      renderWishes(INVITATION.defaultWishes.slice().reverse());
+      wishCurrentPage = 1;
+      wishTotalPages = 1;
+      wishCountKnown = true;
+      wishHasMorePages = false;
+      wishPageEnds.clear();
+      return;
+    }
+
     renderWishes(wishes);
-  },
-  (error) => {
+    wishCurrentPage = normalizedPage;
+
+    if (snapshot.docs.length > 0) {
+      wishPageEnds.set(normalizedPage, snapshot.docs[snapshot.docs.length - 1]);
+    }
+
+    wishHasMorePages = wishCountKnown
+      ? wishCurrentPage < wishTotalPages
+      : snapshot.docs.length === WISHES_PAGE_SIZE;
+  } catch (error) {
+    if (loadToken !== wishLoadToken) {
+      return;
+    }
+
     console.error("Error loading wishes:", error);
-    renderWishes(INVITATION.defaultWishes.slice().reverse());
+
+    if (normalizedPage === 1) {
+      renderWishes(INVITATION.defaultWishes.slice().reverse());
+      wishCurrentPage = 1;
+      wishTotalPages = 1;
+      wishCountKnown = true;
+      wishHasMorePages = false;
+      wishPageEnds.clear();
+    }
+  } finally {
+    if (loadToken === wishLoadToken) {
+      wishLoading = false;
+      updateWishPaginationUI();
+    }
   }
-);
+}
+
+if (wishPrevPage) {
+  wishPrevPage.addEventListener("click", () => {
+    if (wishCurrentPage > 1) {
+      void loadWishPage(wishCurrentPage - 1);
+    }
+  });
+}
+
+if (wishNextPage) {
+  wishNextPage.addEventListener("click", () => {
+    void loadWishPage(wishCurrentPage + 1);
+  });
+}
+
+void loadWishPage(1, { resetHistory: true });
+
+async function loadRsvpGuestTotal() {
+  try {
+    const snapshot = await getDocs(rsvpsCollection);
+    setRsvpGuestCount(sumRsvpGuests(snapshot));
+  } catch (error) {
+    console.error("Error loading RSVP guest total:", error);
+    setRsvpGuestCount("-");
+  }
+}
+
+void loadRsvpGuestTotal();
 
 onSnapshot(
   rsvpsCollection,
   (snapshot) => {
-    const totalGuests = snapshot.docs.reduce((sum, doc) => {
-      return sum + getRsvpGuestCount(doc.data());
-    }, 0);
-
-    setRsvpGuestCount(totalGuests);
+    setRsvpGuestCount(sumRsvpGuests(snapshot));
   },
   (error) => {
-    console.error("Error loading RSVPs:", error);
-    setRsvpGuestCount(0);
+    console.error("Error watching RSVPs:", error);
   }
 );
 
@@ -475,12 +616,13 @@ $("#wishForm").addEventListener("submit", async (event) => {
   submitButton.disabled = true;
 
   try {
-    await addDoc(collection(db, "wishes"), {
+    await addDoc(wishesCollection, {
       name,
       message,
       createdAt: serverTimestamp()
     });
 
+    await loadWishPage(1, { resetHistory: true });
     formElement.reset();
     closePanels();
   } catch (error) {

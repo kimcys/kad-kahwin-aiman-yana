@@ -12,7 +12,7 @@
   <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@500;600;700&family=Montserrat:wght@200;300;400;500;600;700;800&family=Noto+Naskh+Arabic:wght@500;600;700&display=swap" rel="stylesheet">
 
   <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="./css/style.css" />
+  <link rel="stylesheet" href="./css/style.css?v=20260703-rsvps-wishes-v10" />
 </head>
 <body class="card-closed">
   <main class="phone-shell" aria-label="Digital invitation card">
@@ -62,9 +62,10 @@
         </div>
 
         <p class="invite-copy invite-copy-refined">
-          Dengan penuh rasa kesyukuran,<br>
-          saya ingin menjemput<br>
-          Tan Sri / Puan Sri / Dato' / Datin / Tuan / Puan / Encik / Cik<br>
+          Dengan penuh rasa kesyukuran, saya ingin menjemput Tan Sri / Puan Sri /Dato' / Datin /<br>
+          Tuan / Puan / Encik / Cik<br>
+          <br>
+          suami/isteri sekeluarga<br>
           ke majlis kesyukuran perkahwinan anakanda saya
         </p>
 
@@ -84,10 +85,12 @@
             <span>Ogos 2026</span>
           </div>
           <div class="line-block">
-            <h3>Lokasi</h3>
-            <p>SERI MENTARI GLASSHALL<br>JALAN BUKIT KATIL - DUYONG,<br>75460, MELAKA</p>
-            <h3>Aturcara Majlis</h3>
-            <p>11 Pagi - 3 Petang</p>
+            <h3 class="tulisan-bold">Lokasi</h3>
+            <p>SERI MENTARI GLASSHALL<br>JALAN BUKIT KATIL - DUYONG, 75460,<br> MELAKA</p>
+            <div class="line-block-segment">
+              <h3 class="tulisan-bold">Aturcara Majlis</h3>
+              <p>11 Pagi - 3 Petang</p>
+            </div>
           </div>
         </div>
       </section>
@@ -120,19 +123,19 @@
           <div class="carousel-viewport">
             <div class="carousel-track" data-carousel-track>
               <figure class="carousel-slide">
-                <img src="./assets/carousel-placeholder.svg" alt="Placeholder gambar 1" loading="lazy" decoding="async" />
+                <img src="./assets/kahwin/1.jpg" alt="Aiman dan Alyana duduk di sofa putih berlatar bunga" loading="lazy" decoding="async" />
               </figure>
               <figure class="carousel-slide">
-                <img src="./assets/carousel-placeholder.svg" alt="Placeholder gambar 2" loading="lazy" decoding="async" />
+                <img src="./assets/kahwin/2.jpg" alt="Aiman dan Alyana berdiri berpegangan tangan pada waktu malam" loading="lazy" decoding="async" />
               </figure>
               <figure class="carousel-slide">
-                <img src="./assets/carousel-placeholder.svg" alt="Placeholder gambar 3" loading="lazy" decoding="async" />
+                <img src="./assets/kahwin/3.jpg" alt="Aiman dan Alyana memotong kek perkahwinan" loading="lazy" decoding="async" />
               </figure>
               <figure class="carousel-slide">
-                <img src="./assets/carousel-placeholder.svg" alt="Placeholder gambar 4" loading="lazy" decoding="async" />
+                <img src="./assets/kahwin/4.jpg" alt="Aiman dan Alyana duduk bersandar di lantai kayu" loading="lazy" decoding="async" />
               </figure>
               <figure class="carousel-slide">
-                <img src="./assets/carousel-placeholder.svg" alt="Placeholder gambar 5" loading="lazy" decoding="async" />
+                <img src="./assets/kahwin/5.jpg" alt="Cincin perkahwinan di atas latar coklat" loading="lazy" decoding="async" />
               </figure>
             </div>
           </div>
@@ -195,18 +198,32 @@
 
       <section class="section-card rsvp-summary reveal" id="rsvpSummary">
         <h2>Kehadiran</h2>
-        <p class="rsvp-summary-count" aria-live="polite"><strong id="rsvpGuestCount">0</strong> Orang</p>
+        <p class="rsvp-summary-count" aria-live="polite"><strong id="rsvpGuestCount">...</strong> Orang</p>
         <button class="primary-button rsvp-summary-button" data-panel="rsvpPanel" type="button">Sahkan Kehadiran</button>
       </section>
 
       <section class="section-card wishes reveal" id="wishesSection">
         <h2>Ucapan Tetamu</h2>
         <div id="wishList" class="wish-list" aria-live="polite"></div>
+        <div class="wish-pagination" aria-label="Navigasi ucapan">
+          <button id="wishPrevPage" class="carousel-button" type="button" aria-label="Ucapan sebelumnya">
+            <svg class="carousel-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M14.5 6.5 8.8 12l5.7 5.5" />
+            </svg>
+          </button>
+          <p id="wishPageInfo" class="wish-page-info" aria-live="polite">Halaman 1/1</p>
+          <button id="wishNextPage" class="carousel-button" type="button" aria-label="Ucapan seterusnya">
+            <svg class="carousel-icon" viewBox="0 0 24 24" aria-hidden="true">
+              <path d="m9.5 6.5 5.7 5.5-5.7 5.5" />
+            </svg>
+          </button>
+        </div>
         <button class="primary-button" data-panel="wishPanel" type="button">Tulis Ucapan</button>
       </section>
 
       <section class="section-card thanks reveal">
         <p>Kami sekeluarga dengan tulus ikhlas mengucapkan setinggi-tinggi penghargaan dan ribuan terima kasih.</p>
+        <p class="developer-credit">Developed by <a href="https://aimanhakim.netlify.app/" target="_blank" rel="noopener noreferrer">@hakimchica</a></p>
         <p class="cover-hashtag" aria-label="#AiLoveYa"><img src="./assets/hashtag-ai-love-ya.png" alt="" aria-hidden="true"></p>
       </section>
 
@@ -306,14 +323,17 @@
     <section id="contactPanel" class="bottom-panel" aria-label="Contact panel" hidden>
       <button class="panel-close" type="button" aria-label="Close">&times;</button>
       <h2>Hubungi</h2>
-      <p class="small-note">Nombor telefon tidak dinyatakan dalam PDF. Tambah nombor WhatsApp/telefon di bahagian ini sebelum deploy.</p>
       <div class="contact-card">
-        <strong>Aiman</strong>
-        <a href="#" aria-disabled="true">Tambah nombor telefon</a>
+        <strong>Fuziyah (Ibu)</strong>
+        <a href="tel:+601111431945">+60 11-1143 1945</a>
       </div>
       <div class="contact-card">
-        <strong>Alyana</strong>
-        <a href="#" aria-disabled="true">Tambah nombor telefon</a>
+        <strong>Azahari (Ayah)</strong>
+        <a href="tel:+60166733354">+60 16-673 3354</a>
+      </div>
+      <div class="contact-card">
+        <strong>Haziq (Abang)</strong>
+        <a href="tel:+60184034460">+60 18-403 4460</a>
       </div>
     </section>
 
@@ -334,6 +354,6 @@
     </section>
   </main>
 
-  <script type="module" src="./js/main.js"></script>
+  <script type="module" src="./js/main.js?v=20260703-rsvps-wishes-v10"></script>
 </body>
 </html>

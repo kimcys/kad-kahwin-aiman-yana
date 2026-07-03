@@ -605,7 +605,7 @@ button {
   margin: 0;
   color: #625a5b;
   font-size: 0.78rem;
-  font-weight: 800;
+  font-weight: 900;
   letter-spacing: 0.08em;
   text-transform: uppercase;
 }
@@ -620,10 +620,18 @@ button {
   text-transform: uppercase;
 }
 
-.line-block p:last-child {
-  margin-bottom: 0;
+.tulisan-bold{
+  font-weight: 800;
+}
+
+.line-block-segment {
+  margin-top: 16px;
+  padding-top: 16px;
   border-top: 1px solid var(--line);
-  padding-top: 13px;
+}
+
+.line-block-segment p {
+  margin-bottom: 0;
 }
 
 .section-kicker {
@@ -996,7 +1004,7 @@ button {
 .rsvp-summary {
   display: grid;
   justify-items: center;
-  gap: 12px;
+  gap: 16px;
   text-align: center;
 }
 
@@ -1005,6 +1013,7 @@ button {
 }
 
 .rsvp-summary-button {
+  margin-top: 10px;
   min-height: 50px;
   padding: 12px 18px;
   letter-spacing: 0.09em;
@@ -1037,9 +1046,41 @@ button {
   display: grid;
   gap: 12px;
   margin-bottom: 18px;
-  max-height: 310px;
-  overflow: auto;
-  padding-right: 4px;
+  transition: opacity 0.22s ease, transform 0.22s ease;
+  will-change: opacity, transform;
+}
+
+.wish-list.is-changing {
+  opacity: 0.24;
+  transform: translateY(8px);
+}
+
+.wish-pagination {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  margin-bottom: 18px;
+}
+
+.wish-page-info {
+  flex: 0 1 auto;
+  margin: 0;
+  color: var(--rose-deep);
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  line-height: 1.3;
+  text-align: center;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.wish-pagination .carousel-button {
+  flex: 0 0 40px;
+  width: 40px;
+  height: 40px;
 }
 
 .wish-card {
@@ -1047,6 +1088,8 @@ button {
   border-radius: 18px;
   background: rgba(255, 255, 255, 0.58);
   border: 1px solid rgba(255, 255, 255, 0.62);
+  animation: wishCardIn 0.4s ease both;
+  animation-delay: var(--wish-delay, 0ms);
 }
 
 .wish-card strong {
@@ -1071,6 +1114,28 @@ button {
   color: #6f6260;
   font-size: 0.88rem;
   line-height: 1.68;
+}
+
+.developer-credit {
+  margin: 14px 0 0;
+  color: #8b7479;
+  font-size: 0.68rem;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+  line-height: 1.4;
+  text-transform: uppercase;
+}
+
+.developer-credit a {
+  color: var(--rose-deep);
+  text-decoration: none;
+}
+
+.developer-credit a:hover,
+.developer-credit a:focus-visible {
+  color: var(--rose);
+  text-decoration: underline;
+  text-underline-offset: 3px;
 }
 
 .primary-button,
@@ -2002,6 +2067,11 @@ body,
   font-weight: 300;
 }
 
+.line-block h3.tulisan-bold {
+  font-family: var(--font-heavy);
+  font-weight: 800;
+}
+
 .invitation {
   display: flex;
   flex-direction: column;
@@ -2041,7 +2111,7 @@ body,
   max-width: 346px;
   margin: 0 auto 18px;
   color: #625c5d;
-  font-size: clamp(0.78rem, 2.7vw, 0.88rem);
+  font-size: clamp(0.68rem, 2.4vw, 0.78rem);
   line-height: 1.72;
   letter-spacing: 0.01em;
   text-align: center;
@@ -2114,7 +2184,7 @@ body,
   }
 
   .invite-copy-refined {
-    font-size: 0.78rem;
+    font-size: 0.68rem;
   }
 
   .lover-stack {
