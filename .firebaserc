@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "aiman-yana-wed"
+  },
+  "targets": {
+    "aiman-yana-wed": {
+      "hosting": {
+        "wedding": [
+          "aiman-alyana"
+        ]
+      }
+    }
+  },
+  "etags": {}
+}
