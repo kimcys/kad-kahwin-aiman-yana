@@ -57,9 +57,6 @@ const panels = $$(".bottom-panel");
 const loverAudio = $("#loverAudio");
 const rsvpGuestCount = $("#rsvpGuestCount");
 const wishList = $("#wishList");
-const wishPrevPage = $("#wishPrevPage");
-const wishNextPage = $("#wishNextPage");
-const wishPageInfo = $("#wishPageInfo");
 let musicPlaying = false;
 let sparkleInterval = null;
 let unlocked = false;
@@ -116,9 +113,6 @@ openButton.addEventListener("click", (event) => {
 
 opening.addEventListener("click", unlockCard);
 
-if (params.get("open") === "1") {
-  unlockCard();
-}
 
 function updateCountdown() {
   const target = new Date(INVITATION.startDate).getTime();
@@ -134,6 +128,11 @@ function updateCountdown() {
   $("#hours").textContent = Math.floor((difference % day) / hour);
   $("#minutes").textContent = Math.floor((difference % hour) / minute);
   $("#seconds").textContent = Math.floor((difference % minute) / second);
+
+  const finished = difference === 0;
+  $(".countdown-grid").hidden = finished;
+  $("#countdownDone").hidden = !finished;
+  $(".countdown .section-kicker").textContent = finished ? "Majlis telah berlangsung" : "Menghitung hari menuju majlis";
 }
 
 updateCountdown();
@@ -176,8 +175,57 @@ function closePanels() {
 }
 
 $$("[data-panel]").forEach((button) => {
-  button.addEventListener("click", () => openPanel(button.dataset.panel));
+  button.addEventListener("click", () => {
+    const page = button.dataset.page && document.getElementById(button.dataset.page);
+    if (!page) {
+      openPanel(button.dataset.panel);
+      return;
+    }
+
+    // Nav shortcut: land on the related page first, so closing the panel leaves the guest there.
+    card.scrollTo({ top: page.offsetTop - 16, behavior: "smooth" });
+    window.setTimeout(() => openPanel(button.dataset.panel), 450);
+  });
 });
+
+/* Full-page layout: one section per screen, content in a floating panel. */
+function initPages() {
+  const pages = $$("#card > .hero, #card > .section-card");
+  const dots = $(".page-dots");
+
+  $$("#card > .section-card").forEach((section) => {
+    const panel = document.createElement("div");
+    panel.className = "page-panel";
+    panel.append(...section.childNodes);
+    section.append(panel);
+  });
+
+  pages.forEach(() => dots.append(document.createElement("span")));
+
+  const setActive = (page) => {
+    const index = pages.indexOf(page);
+    Array.from(dots.children).forEach((dot, dotIndex) => dot.classList.toggle("is-active", dotIndex === index));
+  };
+
+  setActive(pages[0]);
+
+  if ("IntersectionObserver" in window) {
+    const pageObserver = new IntersectionObserver((entries) => {
+      entries.forEach((entry) => {
+        if (entry.isIntersecting) setActive(entry.target);
+      });
+    }, { root: card, rootMargin: "-45% 0px -45% 0px" });
+
+    pages.forEach((page) => pageObserver.observe(page));
+  }
+
+  // The "Leret ke atas" hint is only needed until the guest's first swipe.
+  card.addEventListener("scroll", () => {
+    if (card.scrollTop > 40) body.classList.add("has-swiped");
+  }, { passive: true });
+}
+
+initPages();
 
 $$(".panel-close").forEach((button) => button.addEventListener("click", closePanels));
 panelOverlay.addEventListener("click", closePanels);
@@ -242,6 +290,10 @@ function getRsvpGuestCount(rsvp) {
   return Number.isFinite(guests) && guests >= 0 ? guests : 0;
 }
 
+function setRsvpStats(snapshot) {
+  setRsvpGuestCount(sumRsvpGuests(snapshot));
+}
+
 function setRsvpGuestCount(totalGuests) {
   if (rsvpGuestCount) {
     rsvpGuestCount.textContent = String(totalGuests);
@@ -267,6 +319,7 @@ function initCarousel(root) {
 
   let currentIndex = 0;
   let autoplayId = null;
+
 
   function stopAutoplay() {
     if (autoplayId) {
@@ -376,22 +429,56 @@ if (galleryCarousel) {
 //   });
 // }
 
-// $("#wishForm").addEventListener("submit", (event) => {
-//   event.preventDefault();
-//   const form = new FormData(event.currentTarget);
-//   const name = String(form.get("name") || "").trim();
-//   const message = String(form.get("message") || "").trim();
-//   if (!name || !message) return;
+const toast = $("#toast");
+let toastTimer = null;
 
-//   const wishes = getStoredWishes();
-//   wishes.push({ name, message });
-//   setStoredWishes(wishes);
-//   event.currentTarget.reset();
-//   renderWishes();
-//   closePanels();
-// });
+function showToast(message) {
+  toast.textContent = message;
+  toast.hidden = false;
+  window.requestAnimationFrame(() => toast.classList.add("is-visible"));
+  window.clearTimeout(toastTimer);
+  toastTimer = window.setTimeout(() => {
+    toast.classList.remove("is-visible");
+    window.setTimeout(() => { toast.hidden = true; }, 350);
+  }, 3800);
+}
 
-// renderWishes();
+// Remember on this phone that the guest has RSVP'd, so they are not asked again by default.
+const RSVP_DONE_KEY = "aiman-alyana-rsvp-done";
+
+function showRsvpDone(name) {
+  if (!name) return;
+  const note = $("#rsvpDone");
+  note.textContent = `\u2713 Terima kasih, ${name}. Kehadiran anda telah disahkan.`;
+  note.hidden = false;
+  const button = $("#rsvpOpenButton");
+  button.textContent = "Sahkan Untuk Tetamu Lain";
+  button.classList.replace("primary-button", "secondary-button");
+}
+
+try {
+  showRsvpDone(localStorage.getItem(RSVP_DONE_KEY));
+} catch {
+  // Storage unavailable; the note simply is not shown.
+}
+
+const rsvpForm = $("#rsvpForm");
+const attendanceSelect = $("select[name='attendance']", rsvpForm);
+const guestsField = $("#guestsField");
+const guestsInput = $("input[name='guests']", guestsField);
+const rsvpMessage = $("textarea[name='message']", rsvpForm);
+
+// "Tidak Hadir" always counts as 0 guests, so the field is hidden instead of asked.
+function syncGuestsField() {
+  const notAttending = attendanceSelect.value === "Tidak Hadir";
+  guestsField.hidden = notAttending;
+  guestsInput.disabled = notAttending;
+}
+
+attendanceSelect.addEventListener("change", syncGuestsField);
+rsvpForm.addEventListener("reset", () => window.setTimeout(syncGuestsField));
+rsvpMessage.addEventListener("invalid", () => rsvpMessage.setCustomValidity("Sila tulis ucapan untuk pengantin."));
+rsvpMessage.addEventListener("input", () => rsvpMessage.setCustomValidity(""));
 
 // $("#rsvpForm").addEventListener("submit", (event) => {
 //   event.preventDefault();
@@ -417,6 +504,31 @@ if (galleryCarousel) {
 //   event.currentTarget.reset();
 // });
 
+const BEAD_COLORS = ["#ffd8e9", "#bfe8f5", "#fff1bb", "#e6d9ff", "#d6f5e3"];
+
+// The guest's name as an Eras-style friendship bracelet: one letter per bead, hearts at the ends.
+function createBracelet(fullName) {
+  const bracelet = document.createElement("span");
+  bracelet.className = "bracelet";
+  bracelet.setAttribute("aria-hidden", "true");
+
+  const letters = Array.from(String(fullName).toUpperCase().replace(/[^\p{L}\p{N} ]/gu, "").trim()).slice(0, 14);
+  const beads = ["\u2661", ...(letters.length ? letters : ["\u2661"]), "\u2661"];
+
+  // Long names get smaller beads so the bracelet stays on one line.
+  bracelet.style.setProperty("--bead-size", `${Math.max(12, Math.min(20, Math.floor(250 / beads.length) - 3))}px`);
+
+  beads.forEach((letter, index) => {
+    const bead = document.createElement("span");
+    bead.className = letter === " " ? "bead bead-gap" : letter === "\u2661" ? "bead bead-heart" : "bead";
+    bead.textContent = letter === " " ? "" : letter;
+    bead.style.setProperty("--bead", BEAD_COLORS[index % BEAD_COLORS.length]);
+    bracelet.append(bead);
+  });
+
+  return bracelet;
+}
+
 function renderWishes(wishes) {
   if (!wishList) {
     return;
@@ -430,36 +542,21 @@ function renderWishes(wishes) {
     item.style.setProperty("--wish-delay", `${wishIndex * 55}ms`);
 
     const name = document.createElement("strong");
+    name.className = "sr-only";
     name.textContent = wish.name;
 
     const message = document.createElement("p");
     message.textContent = wish.message;
 
-    item.append(name, message);
+    item.append(createBracelet(wish.name), name, message);
     wishList.append(item);
   });
 
   wishList.classList.remove("is-changing");
 }
 
-function updateWishPaginationUI() {
-  if (!wishPrevPage || !wishNextPage || !wishPageInfo) {
-    return;
-  }
-
-  if (wishLoading && wishCountKnown) {
-    wishPageInfo.textContent = `Halaman ${wishCurrentPage}/${wishTotalPages}`;
-  } else if (wishLoading) {
-    wishPageInfo.textContent = `Halaman ${wishCurrentPage}`;
-  } else if (wishCountKnown) {
-    wishPageInfo.textContent = `Halaman ${wishCurrentPage}/${wishTotalPages}`;
-  } else {
-    wishPageInfo.textContent = `Halaman ${wishCurrentPage}`;
-  }
-
-  wishPrevPage.disabled = wishLoading || wishCurrentPage <= 1;
-  wishNextPage.disabled = wishLoading || (wishCountKnown ? wishCurrentPage >= wishTotalPages : !wishHasMorePages);
-}
+const WISH_ROTATE_MS = 6000;
+let wishRotateId = null;
 
 async function loadWishPage(pageNumber = 1, { resetHistory = false } = {}) {
   const normalizedPage = Math.max(1, pageNumber);
@@ -489,7 +586,6 @@ async function loadWishPage(pageNumber = 1, { resetHistory = false } = {}) {
   const loadToken = ++wishLoadToken;
   wishLoading = true;
   wishList?.classList.add("is-changing");
-  updateWishPaginationUI();
 
   try {
     const [countResult, pageResult] = await Promise.allSettled([
@@ -515,7 +611,7 @@ async function loadWishPage(pageNumber = 1, { resetHistory = false } = {}) {
     }
 
     const snapshot = pageResult.value;
-    const wishes = snapshot.docs.map((doc) => ({
+    let wishes = snapshot.docs.map((doc) => ({
       id: doc.id,
       ...doc.data()
     }));
@@ -528,6 +624,19 @@ async function loadWishPage(pageNumber = 1, { resetHistory = false } = {}) {
       wishHasMorePages = false;
       wishPageEnds.clear();
       return;
+    }
+
+    if (normalizedPage > 1 && wishes.length < WISHES_PAGE_SIZE) {
+      // Short last page: top it up with the newest wishes so every page shows a full set.
+      const topUp = await getDocs(query(
+        wishesCollection,
+        orderBy("createdAt", "desc"),
+        limit(WISHES_PAGE_SIZE - wishes.length)
+      ));
+      if (loadToken !== wishLoadToken) {
+        return;
+      }
+      wishes = wishes.concat(topUp.docs.map((doc) => ({ id: doc.id, ...doc.data() })));
     }
 
     renderWishes(wishes);
@@ -558,31 +667,32 @@ async function loadWishPage(pageNumber = 1, { resetHistory = false } = {}) {
   } finally {
     if (loadToken === wishLoadToken) {
       wishLoading = false;
-      updateWishPaginationUI();
     }
   }
 }
 
-if (wishPrevPage) {
-  wishPrevPage.addEventListener("click", () => {
-    if (wishCurrentPage > 1) {
-      void loadWishPage(wishCurrentPage - 1);
-    }
-  });
-}
+// Wishes rotate on their own: next page every few seconds, back to page 1 after the last.
+// With a single page there is nothing to rotate, so the list stays put.
+function startWishRotation() {
+  if (wishRotateId) window.clearInterval(wishRotateId);
 
-if (wishNextPage) {
-  wishNextPage.addEventListener("click", () => {
-    void loadWishPage(wishCurrentPage + 1);
-  });
+  wishRotateId = window.setInterval(() => {
+    if (wishLoading || document.hidden) return;
+    if (wishHasMorePages) {
+      void loadWishPage(wishCurrentPage + 1);
+    } else if (wishCurrentPage > 1) {
+      void loadWishPage(1, { resetHistory: true });
+    }
+  }, WISH_ROTATE_MS);
 }
 
 void loadWishPage(1, { resetHistory: true });
+startWishRotation();
 
 async function loadRsvpGuestTotal() {
   try {
     const snapshot = await getDocs(rsvpsCollection);
-    setRsvpGuestCount(sumRsvpGuests(snapshot));
+    setRsvpStats(snapshot);
   } catch (error) {
     console.error("Error loading RSVP guest total:", error);
     setRsvpGuestCount("-");
@@ -594,44 +704,12 @@ void loadRsvpGuestTotal();
 onSnapshot(
   rsvpsCollection,
   (snapshot) => {
-    setRsvpGuestCount(sumRsvpGuests(snapshot));
+    setRsvpStats(snapshot);
   },
   (error) => {
     console.error("Error watching RSVPs:", error);
   }
 );
-
-$("#wishForm").addEventListener("submit", async (event) => {
-  event.preventDefault();
-
-  const formElement = event.currentTarget;
-  const form = new FormData(formElement);
-
-  const name = String(form.get("name") || "").trim();
-  const message = String(form.get("message") || "").trim();
-
-  if (!name || !message) return;
-
-  const submitButton = formElement.querySelector("button[type='submit']");
-  submitButton.disabled = true;
-
-  try {
-    await addDoc(wishesCollection, {
-      name,
-      message,
-      createdAt: serverTimestamp()
-    });
-
-    await loadWishPage(1, { resetHistory: true });
-    formElement.reset();
-    closePanels();
-  } catch (error) {
-    console.error("Error sending wish:", error);
-    alert("Maaf, ucapan tidak dapat dihantar. Sila cuba lagi.");
-  } finally {
-    submitButton.disabled = false;
-  }
-});
 
 $("#rsvpForm").addEventListener("submit", async (event) => {
   event.preventDefault();
@@ -639,14 +717,18 @@ $("#rsvpForm").addEventListener("submit", async (event) => {
   const formElement = event.currentTarget;
   const form = new FormData(formElement);
 
+  const attendance = String(form.get("attendance") || "");
+  const parsedGuests = Number.parseInt(String(form.get("guests") || "1"), 10);
   const rsvp = {
-    name: String(form.get("name") || "").trim(),
-    attendance: String(form.get("attendance") || ""),
-    guests: Number.parseInt(String(form.get("guests") || "0"), 10),
+    name: String(form.get("name") || "").trim().slice(0, 80),
+    attendance,
+    guests: attendance === "Tidak Hadir" ? 0 : Math.min(Math.max(Number.isFinite(parsedGuests) ? parsedGuests : 1, 1), 10),
     submittedAt: serverTimestamp()
   };
+  // Every RSVP comes with a wish; it is posted to Ucapan Tetamu as well.
+  const message = String(form.get("message") || "").trim().slice(0, 180);
 
-  if (!rsvp.name || !rsvp.attendance) return;
+  if (!rsvp.name || !rsvp.attendance || !message) return;
 
   const submitButton = formElement.querySelector("button[type='submit']");
   submitButton.disabled = true;
@@ -654,10 +736,24 @@ $("#rsvpForm").addEventListener("submit", async (event) => {
   $("#rsvpStatus").textContent = "Menghantar RSVP...";
 
   try {
-    await addDoc(rsvpsCollection, rsvp);
+    await Promise.all([
+      addDoc(rsvpsCollection, rsvp),
+      addDoc(wishesCollection, { name: rsvp.name, message, createdAt: serverTimestamp() })
+    ]);
 
-    $("#rsvpStatus").textContent = `Terima kasih, ${rsvp.name}. RSVP anda telah dihantar.`;
+    await loadWishPage(1, { resetHistory: true });
+    startWishRotation();
+    $("#rsvpStatus").textContent = "";
     formElement.reset();
+    closePanels();
+    try {
+      localStorage.setItem(RSVP_DONE_KEY, rsvp.name);
+    } catch {
+      // Not remembered; harmless.
+    }
+    showRsvpDone(rsvp.name);
+    showToast(`Terima kasih, ${rsvp.name}! RSVP dan ucapan anda telah dihantar.`);
+    $("#wishesSection").scrollIntoView({ behavior: "smooth", block: "center" });
   } catch (error) {
     console.error("Error sending RSVP:", error);
     $("#rsvpStatus").textContent = "Maaf, RSVP tidak dapat dihantar. Sila cuba lagi.";
@@ -666,8 +762,21 @@ $("#rsvpForm").addEventListener("submit", async (event) => {
   }
 });
 
+const BUTTERFLY_SVG = '<svg viewBox="0 0 32 26" aria-hidden="true"><path d="M16 13C13 4 5-1 2 3s2 10 14 10Z" fill="#ffc4de"/><path d="M16 13c3-9 11-14 14-10s-2 10-14 10Z" fill="#bfe8f5"/><path d="M16 13c-2 5-9 11-11 8s2-7 11-8Z" fill="#ffd8e9"/><path d="M16 13c2 5 9 11 11 8s-2-7-11-8Z" fill="#d7efff"/><path d="M16 7v14" stroke="#be4077" stroke-width="1.4" stroke-linecap="round"/></svg>';
+
 function createSparkle() {
   const sparkle = document.createElement("span");
+  if (Math.random() < 0.18) {
+    // Lover-era butterfly, fluttering as it rises.
+    sparkle.className = "floating-heart floating-butterfly";
+    sparkle.innerHTML = BUTTERFLY_SVG;
+    sparkle.style.left = `${Math.random() * 100}%`;
+    sparkle.style.setProperty("--size", `${20 + Math.random() * 14}px`);
+    sparkle.style.setProperty("--duration", `${10 + Math.random() * 6}s`);
+    $(".sparkle-field").append(sparkle);
+    window.setTimeout(() => sparkle.remove(), 17000);
+    return;
+  }
   sparkle.className = "floating-heart";
   sparkle.textContent = Math.random() > 0.5 ? "\u2661" : "\u2726";
   sparkle.style.left = `${Math.random() * 100}%`;
@@ -726,3 +835,74 @@ $("#musicToggle").addEventListener("click", () => {
 $$("a[aria-disabled='true']").forEach((link) => {
   link.addEventListener("click", (event) => event.preventDefault());
 });
+
+/* ---------- Lightbox (Galeri & Potret) ---------- */
+
+const lightbox = $("#lightbox");
+const lightboxImg = $(".lightbox-img", lightbox);
+const lightboxPrev = $(".lightbox-prev", lightbox);
+const lightboxNext = $(".lightbox-next", lightbox);
+const lightboxCount = $(".lightbox-count", lightbox);
+let lightboxGroup = [];
+let lightboxIndex = 0;
+let lightboxTouchX = null;
+
+function showLightboxImage(index) {
+  lightboxIndex = (index + lightboxGroup.length) % lightboxGroup.length;
+  const source = lightboxGroup[lightboxIndex];
+  lightboxImg.src = source.currentSrc || source.src;
+  lightboxImg.alt = source.alt;
+  lightboxCount.textContent = lightboxGroup.length > 1 ? `${lightboxIndex + 1} / ${lightboxGroup.length}` : "";
+}
+
+function openLightbox(image) {
+  lightboxGroup = $$(`[data-lightbox="${image.dataset.lightbox}"]`);
+  const multiple = lightboxGroup.length > 1;
+  lightboxPrev.hidden = !multiple;
+  lightboxNext.hidden = !multiple;
+  showLightboxImage(lightboxGroup.indexOf(image));
+  lightbox.hidden = false;
+  $(".lightbox-close", lightbox).focus();
+}
+
+function closeLightbox() {
+  lightbox.hidden = true;
+  lightboxImg.removeAttribute("src");
+}
+
+$$("[data-lightbox]").forEach((image) => {
+  image.addEventListener("click", () => openLightbox(image));
+});
+
+lightboxPrev.addEventListener("click", (event) => {
+  event.stopPropagation();
+  showLightboxImage(lightboxIndex - 1);
+});
+lightboxNext.addEventListener("click", (event) => {
+  event.stopPropagation();
+  showLightboxImage(lightboxIndex + 1);
+});
+$(".lightbox-close", lightbox).addEventListener("click", closeLightbox);
+lightbox.addEventListener("click", (event) => {
+  if (event.target === lightbox) closeLightbox();
+});
+lightbox.addEventListener("touchstart", (event) => {
+  lightboxTouchX = event.touches[0].clientX;
+}, { passive: true });
+lightbox.addEventListener("touchend", (event) => {
+  if (lightboxTouchX === null || lightboxGroup.length < 2) return;
+  const deltaX = event.changedTouches[0].clientX - lightboxTouchX;
+  lightboxTouchX = null;
+  if (Math.abs(deltaX) > 40) showLightboxImage(lightboxIndex + (deltaX < 0 ? 1 : -1));
+});
+window.addEventListener("keydown", (event) => {
+  if (lightbox.hidden) return;
+  if (event.key === "Escape") closeLightbox();
+  if (event.key === "ArrowLeft" && lightboxGroup.length > 1) showLightboxImage(lightboxIndex - 1);
+  if (event.key === "ArrowRight" && lightboxGroup.length > 1) showLightboxImage(lightboxIndex + 1);
+});
+
+// Runs last so everything the card uses on open (sparkles, music) is already defined.
+if (params.get("open") === "1") {
+  unlockCard();
+}

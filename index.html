@@ -31,14 +31,15 @@
   <meta name="theme-color" content="#ffd7e9" />
 
   <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml" />
-  <link rel="stylesheet" href="./css/style.css?v=20260703-rsvps-wishes-v11" />
+  <link rel="stylesheet" href="./css/style.css?v=20260928-wish-fit-v1" />
 </head>
 
-<body class="card-closed">
+<body class="card-closed layout-pages">
   <main class="phone-shell" aria-label="Digital invitation card">
     <div class="background-layer" aria-hidden="true"></div>
     <div class="soft-glow glow-one" aria-hidden="true"></div>
     <div class="soft-glow glow-two" aria-hidden="true"></div>
+    <div class="scene-vignette" aria-hidden="true"></div>
     <div class="sparkle-field" aria-hidden="true"></div>
 
     <section id="opening" class="opening-screen" aria-label="Open invitation">
@@ -71,6 +72,10 @@
           <p class="cover-meta fade-in-delay-3">11 Pagi - 3 Petang<br>SERI MENTARI GLASSHALL</p>
           <p class="cover-hashtag fade-in-delay-3" aria-label="#AiLoveYa"><img src="./assets/hashtag-ai-love-ya.png"
               alt="" aria-hidden="true"></p>
+        </div>
+        <div class="page-hint" aria-hidden="true">
+          <svg viewBox="0 0 24 24"><path d="m6.5 14.5 5.5-5.5 5.5 5.5" /></svg>
+          <span>Leret ke atas</span>
         </div>
       </section>
 
@@ -130,18 +135,20 @@
           <div><strong id="minutes">0</strong><span>Minit</span></div>
           <div><strong id="seconds">0</strong><span>Saat</span></div>
         </div>
+        <p id="countdownDone" class="countdown-done" hidden>Alhamdulillah, majlis telah selamat berlangsung.<br>Terima kasih atas doa dan kehadiran anda &#9825;</p>
       </section>
+
 
       <section class="section-card couple reveal" id="couple" aria-label="Potret pengantin">
         <h2>Potret Pengantin</h2>
         <div class="lover-stack">
           <figure class="lover-frame lover-frame-groom">
             <img src="https://res.cloudinary.com/brltznkf/image/upload/v1783066438/bride-groom-1_hfqjxg.jpg"
-              alt="Potret Aiman" loading="lazy" decoding="async" />
+              data-lightbox="portrait" alt="Potret Aiman" loading="lazy" decoding="async" />
           </figure>
           <figure class="lover-frame lover-frame-bride">
             <img src="https://res.cloudinary.com/brltznkf/image/upload/v1783066438/bride-groom-2_ywkzyl.jpg"
-              alt="Potret Alyana" loading="lazy" decoding="async" />
+              data-lightbox="portrait" alt="Potret Alyana" loading="lazy" decoding="async" />
           </figure>
         </div>
       </section>
@@ -152,23 +159,23 @@
           <div class="carousel-viewport">
             <div class="carousel-track" data-carousel-track>
               <figure class="carousel-slide">
-                <img src="https://res.cloudinary.com/brltznkf/image/upload/v1783066445/1_t71w3r.jpg"
+                <img data-lightbox="gallery" src="https://res.cloudinary.com/brltznkf/image/upload/v1783066445/1_t71w3r.jpg"
                   alt="Aiman dan Alyana duduk di sofa putih berlatar bunga" loading="lazy" decoding="async" />
               </figure>
               <figure class="carousel-slide">
-                <img src="https://res.cloudinary.com/brltznkf/image/upload/v1783066444/2_tw6onf.jpg"
+                <img data-lightbox="gallery" src="https://res.cloudinary.com/brltznkf/image/upload/v1783066444/2_tw6onf.jpg"
                   alt="Aiman dan Alyana berdiri berpegangan tangan pada waktu malam" loading="lazy" decoding="async" />
               </figure>
               <figure class="carousel-slide">
-                <img src="https://res.cloudinary.com/brltznkf/image/upload/v1783066448/3_q37u41.jpg"
+                <img data-lightbox="gallery" src="https://res.cloudinary.com/brltznkf/image/upload/v1783066448/3_q37u41.jpg"
                   alt="Aiman dan Alyana memotong kek perkahwinan" loading="lazy" decoding="async" />
               </figure>
               <figure class="carousel-slide">
-                <img src="https://res.cloudinary.com/brltznkf/image/upload/v1783066448/4_dho4pz.jpg"
+                <img data-lightbox="gallery" src="https://res.cloudinary.com/brltznkf/image/upload/v1783066448/4_dho4pz.jpg"
                   alt="Aiman dan Alyana duduk bersandar di lantai kayu" loading="lazy" decoding="async" />
               </figure>
               <figure class="carousel-slide">
-                <img src="https://res.cloudinary.com/brltznkf/image/upload/v1783066448/5_mthks0.jpg"
+                <img data-lightbox="gallery" src="https://res.cloudinary.com/brltznkf/image/upload/v1783066448/5_mthks0.jpg"
                   alt="Cincin perkahwinan di atas latar coklat" loading="lazy" decoding="async" />
               </figure>
             </div>
@@ -191,18 +198,24 @@
 
       <section class="section-card programme reveal" id="programme">
         <h2>Aturcara Majlis</h2>
-        <div class="programme-row">
-          <span>11:00 AM</span>
-          <p>Ketibaan Tetamu</p>
-        </div>
-        <div class="programme-row">
-          <span>12:00 PM</span>
-          <p>Ketibaan Pengantin</p>
-        </div>
-        <div class="programme-row">
-          <span>3:00 PM</span>
-          <p>Majlis Bersurai</p>
-        </div>
+        <p class="tracklist-side">Side A &middot; 08.08.2026</p>
+        <ol class="tracklist">
+          <li>
+            <span class="track-no">01</span>
+            <span class="track-title">Ketibaan Tetamu</span>
+            <span class="track-time">11:00 AM</span>
+          </li>
+          <li>
+            <span class="track-no">02</span>
+            <span class="track-title">Ketibaan Pengantin</span>
+            <span class="track-time">12:00 PM</span>
+          </li>
+          <li>
+            <span class="track-no">03</span>
+            <span class="track-title">Majlis Bersurai</span>
+            <span class="track-time">3:00 PM</span>
+          </li>
+        </ol>
       </section>
 
       <section class="section-card dresscode reveal" id="dressCode" aria-label="Tema warna majlis">
@@ -230,31 +243,20 @@
         <p class="dresscode-note">Kod warna biru/pink.</p>
       </section>
 
-      <section class="section-card wishes reveal" id="wishesSection">
-        <h2>Ucapan Tetamu</h2>
-        <div id="wishList" class="wish-list" aria-live="polite"></div>
-        <div class="wish-pagination" aria-label="Navigasi ucapan">
-          <button id="wishPrevPage" class="carousel-button" type="button" aria-label="Ucapan sebelumnya">
-            <svg class="carousel-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="M14.5 6.5 8.8 12l5.7 5.5" />
-            </svg>
-          </button>
-          <p id="wishPageInfo" class="wish-page-info" aria-live="polite">Halaman 1/1</p>
-          <button id="wishNextPage" class="carousel-button" type="button" aria-label="Ucapan seterusnya">
-            <svg class="carousel-icon" viewBox="0 0 24 24" aria-hidden="true">
-              <path d="m9.5 6.5 5.7 5.5-5.7 5.5" />
-            </svg>
-          </button>
-        </div>
-        <button class="primary-button" data-panel="wishPanel" type="button">Tulis Ucapan</button>
-      </section>
-      
+
       <section class="section-card rsvp-summary reveal" id="rsvpSummary">
         <h2>Kehadiran</h2>
         <p class="rsvp-summary-count" aria-live="polite"><strong id="rsvpGuestCount">...</strong> Orang</p>
-        <button class="primary-button rsvp-summary-button" data-panel="rsvpPanel" type="button">Sahkan
+        <p id="rsvpDone" class="rsvp-done" hidden></p>
+        <button id="rsvpOpenButton" class="primary-button rsvp-summary-button" data-panel="rsvpPanel" type="button">Sahkan
           Kehadiran</button>
       </section>
+
+      <section class="section-card wishes reveal" id="wishesSection">
+        <h2>Ucapan Tetamu</h2>
+        <div id="wishList" class="wish-list" aria-live="polite"></div>
+      </section>
+
 
       <section class="section-card thanks reveal">
         <p>Kami sekeluarga dengan tulus ikhlas mengucapkan setinggi-tinggi penghargaan dan ribuan terima kasih.</p>
@@ -267,8 +269,10 @@
       <section class="footer-space" aria-hidden="true"></section>
     </article>
 
+    <div class="page-dots" aria-hidden="true"></div>
+
     <nav class="bottom-nav" aria-label="Invitation actions">
-      <button data-panel="calendarPanel" type="button" aria-label="Kalendar">
+      <button data-panel="calendarPanel" data-page="details" type="button" aria-label="Kalendar">
         <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
           <path
             d="M7 3v3M17 3v3M4.5 9.2h15M6.6 5h10.8c1.2 0 2.1.9 2.1 2.1v10.8c0 1.2-.9 2.1-2.1 2.1H6.6c-1.2 0-2.1-.9-2.1-2.1V7.1C4.5 5.9 5.4 5 6.6 5Z" />
@@ -276,7 +280,7 @@
         </svg>
         <span class="sr-only">Kalendar</span>
       </button>
-      <button data-panel="locationPanel" type="button" aria-label="Lokasi">
+      <button data-panel="locationPanel" data-page="details" type="button" aria-label="Lokasi">
         <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
           <path d="M12 21s6-5.2 6-11a6 6 0 0 0-12 0c0 5.8 6 11 6 11Z" />
           <path d="M12 12.2a2.2 2.2 0 1 0 0-4.4 2.2 2.2 0 0 0 0 4.4Z" />
@@ -289,7 +293,7 @@
         </svg>
         <span class="sr-only">Muzik</span>
       </button>
-      <button data-panel="rsvpPanel" type="button" aria-label="RSVP">
+      <button data-panel="rsvpPanel" data-page="rsvpSummary" type="button" aria-label="RSVP">
         <svg class="nav-icon" viewBox="0 0 24 24" aria-hidden="true">
           <path
             d="M5.5 6.5h13c.8 0 1.5.7 1.5 1.5v8c0 .8-.7 1.5-1.5 1.5h-13C4.7 17.5 4 16.8 4 16V8c0-.8.7-1.5 1.5-1.5Z" />
@@ -307,6 +311,18 @@
     </nav>
 
     <div id="panelOverlay" class="panel-overlay" hidden></div>
+    <div id="lightbox" class="lightbox" role="dialog" aria-modal="true" aria-label="Paparan gambar" hidden>
+      <button class="lightbox-close" type="button" aria-label="Tutup">&times;</button>
+      <button class="lightbox-nav lightbox-prev" type="button" aria-label="Gambar sebelumnya">
+        <svg class="carousel-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="M14.5 6.5 8.8 12l5.7 5.5" /></svg>
+      </button>
+      <img class="lightbox-img" alt="" />
+      <button class="lightbox-nav lightbox-next" type="button" aria-label="Gambar seterusnya">
+        <svg class="carousel-icon" viewBox="0 0 24 24" aria-hidden="true"><path d="m9.5 6.5 5.7 5.5-5.7 5.5" /></svg>
+      </button>
+      <p class="lightbox-count" aria-live="polite"></p>
+    </div>
+    <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
 
     <section id="calendarPanel" class="bottom-panel" aria-label="Calendar panel" hidden>
       <button class="panel-close" type="button" aria-label="Close">&times;</button>
@@ -355,7 +371,7 @@
       <form id="rsvpForm" class="form-stack">
         <label>
           Nama
-          <input name="name" type="text" placeholder="Nama anda" required>
+          <input name="name" type="text" maxlength="80" placeholder="Nama anda" autocomplete="name" required>
         </label>
         <label>
           Kehadiran
@@ -365,9 +381,13 @@
             <option value="Tidak Hadir">Tidak Hadir</option>
           </select>
         </label>
-        <label>
+        <label id="guestsField">
           Bilangan Tetamu
-          <input name="guests" type="number" min="0" max="10" value="1">
+          <input name="guests" type="number" min="1" max="10" value="1" inputmode="numeric" required>
+        </label>
+        <label>
+          Ucapan
+          <textarea name="message" rows="3" maxlength="180" placeholder="Tulis ucapan untuk pengantin" required></textarea>
         </label>
         <button class="primary-button" type="submit">Hantar RSVP</button>
       </form>
@@ -391,24 +411,9 @@
       </div>
     </section>
 
-    <section id="wishPanel" class="bottom-panel" aria-label="Wish panel" hidden>
-      <button class="panel-close" type="button" aria-label="Close">&times;</button>
-      <h2>Tulis Ucapan</h2>
-      <form id="wishForm" class="form-stack">
-        <label>
-          Nama
-          <input name="name" type="text" placeholder="Nama anda" required>
-        </label>
-        <label>
-          Ucapan
-          <textarea name="message" rows="4" maxlength="180" placeholder="Tulis ucapan anda" required></textarea>
-        </label>
-        <button class="primary-button" type="submit">Hantar Ucapan</button>
-      </form>
-    </section>
   </main>
 
-  <script type="module" src="./js/main.js?v=20260703-rsvps-wishes-v11"></script>
+  <script type="module" src="./js/main.js?v=20260928-wish-fit-v1"></script>
 </body>
 
 </html>
